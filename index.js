@@ -3,7 +3,7 @@ var gutil = require('gulp-util');
 var through = require('through2');
 var tpl = require('lodash.template');
 var PluginError = gutil.PluginError;
-
+var os = require('os');
 var PLUGIN_NAME = 'gulp-template-compile';
 
 module.exports = function (options) {
@@ -12,7 +12,23 @@ module.exports = function (options) {
 	function compiler (file) {
 		var name = typeof options.name === 'function' && options.name(file) || file.relative;
 		var namespace = options.namespace || 'JST';
-		var NSwrapper = '(function() {(window["'+ namespace +'"] = window["'+ namespace +'"] || {})["'+ name.replace(/\\/g, '/') +'"] = ';
+		var namespaceList = namespace.split('.');
+		var namespaceLevels = [];
+		var namespaceDecls = [];
+
+		for(var n = 1; n <= namespaceList.length; n++) {
+			var tree = namespaceList.slice(0,n);
+			var buffer = tree.map(function(elm) {
+				return '["'+elm+'"]';
+			}).join('');
+			namespaceLevels.push(buffer);
+			namespaceDecls.push('window'+buffer+' = window'+buffer+' || {};'+os.EOL);
+		}
+		var finalNamespace = namespaceLevels[namespaceLevels.length-1];
+
+		var NSwrapper = '(function() {'+os.EOL;
+		NSwrapper += namespaceDecls.join('');
+		NSwrapper += 'window'+finalNamespace+'["'+ name.replace(/\\/g, '/') +'"] = ';
 
 		var template = tpl(file.contents.toString(), false, options.templateSettings).source;
 

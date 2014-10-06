@@ -33,7 +33,7 @@ it('should support supplying custom name in a callback', function (cb) {
 	});
 
 	stream.on('data', function (file) {
-		assert(/{}\)\["custom"]/.test(file.contents.toString()));
+		assert(/\]\["custom"]/.test(file.contents.toString()));
 		cb();
 	});
 
@@ -53,6 +53,26 @@ it('should support supplying a custom namespace', function (cb) {
 
 	stream.on('data', function (file) {
 		assert(/window\["customNS"\]/.test(file.contents.toString()));
+		cb();
+	});
+
+	stream.write(new gutil.File({
+		base: __dirname,
+		path: __dirname + '/fixture/fixture.html',
+		contents: new Buffer('<h1><%= test %></h1>')
+	}));
+});
+
+it('should support supplying a custom nested namespace', function (cb) {
+
+	var stream = tpl(
+	{
+		namespace: 'customNS.childNS.grandchildNS',
+	});
+
+	stream.on('data', function (file) {
+		assert(/window\["customNS"\]\["childNS"\]\["grandchildNS"\]/.test(file.contents.toString()));
+		console.log(file.contents.toString());
 		cb();
 	});
 
