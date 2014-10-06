@@ -72,7 +72,6 @@ it('should support supplying a custom nested namespace', function (cb) {
 
 	stream.on('data', function (file) {
 		assert(/window\["customNS"\]\["childNS"\]\["grandchildNS"\]/.test(file.contents.toString()));
-		console.log(file.contents.toString());
 		cb();
 	});
 
