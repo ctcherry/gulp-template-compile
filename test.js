@@ -1,4 +1,5 @@
 'use strict';
+var path = require('path');
 var assert = require('assert');
 var gutil = require('gulp-util');
 var tpl = require('./index');
@@ -8,8 +9,8 @@ it('should precompile lodash templates', function(cb) {
 	var stream = tpl();
 
 	stream.on('data', function (file) {
-		assert.equal(file.path, __dirname + '\\fixture\\fixture.js');
-		assert.equal(file.relative, 'fixture\\fixture.js');
+		assert.equal(file.path, __dirname + path.join('/fixture','fixture.js'));
+		assert.equal(file.relative, path.join('fixture','fixture.js'));
 		assert(/["JST"]/.test(file.contents.toString()));
 		assert(/["fixture\/fixture.html"]/.test(file.contents.toString()));
 		cb();
